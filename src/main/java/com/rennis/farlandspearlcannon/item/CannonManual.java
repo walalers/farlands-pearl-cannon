@@ -97,7 +97,7 @@ public final class CannonManual {
                 Lost it, or inventory full? Type /farlandscannon return. It only works out in the Far Lands, so it is never an easy shortcut home.""")));
 
         WrittenBookContent content = new WrittenBookContent(
-                Filterable.passThrough(TITLE), "Rennis", 0, pages, true);
+                Filterable.passThrough(TITLE), "Shigeo", 0, pages, true);
         ItemStack book = new ItemStack(Items.WRITTEN_BOOK);
         book.set(DataComponents.WRITTEN_BOOK_CONTENT, content);
         return book;
