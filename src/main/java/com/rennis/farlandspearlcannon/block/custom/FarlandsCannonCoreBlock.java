@@ -24,6 +24,8 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -32,6 +34,7 @@ import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 
 import com.rennis.farlandspearlcannon.advancement.ModAdvancements;
+import com.rennis.farlandspearlcannon.block.ModBlockEntities;
 import com.rennis.farlandspearlcannon.block.entity.FarlandsCannonCoreBlockEntity;
 import com.rennis.farlandspearlcannon.config.ModConfig;
 import com.rennis.farlandspearlcannon.launch.CannonStructure;
@@ -60,6 +63,13 @@ public class FarlandsCannonCoreBlock extends BaseEntityBlock {
     @Override
     protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
+    }
+
+    @Override
+    @Nullable
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return level.isClientSide() ? null
+                : createTickerHelper(type, ModBlockEntities.FARLANDS_CANNON_CORE, FarlandsCannonCoreBlockEntity::serverTick);
     }
 
     @Override
