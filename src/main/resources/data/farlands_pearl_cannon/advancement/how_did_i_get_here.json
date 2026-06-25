@@ -1,0 +1,14 @@
+{
+  "parent": "farlands_pearl_cannon:root",
+  "display": {
+    "icon": {"id": "farlands_pearl_cannon:anchor_pearl"},
+    "title": {"translate": "advancements.farlands_pearl_cannon.how_did_i_get_here.title"},
+    "description": {"translate": "advancements.farlands_pearl_cannon.how_did_i_get_here.description"},
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "launched": {"trigger": "minecraft:impossible"}
+  }
+}

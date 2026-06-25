@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [" A ", "RCR", " Q "],
+  "key": {
+    "A": "minecraft:amethyst_shard",
+    "R": "minecraft:redstone",
+    "C": "minecraft:compass",
+    "Q": "minecraft:quartz"
+  },
+  "result": {"id": "farlands_pearl_cannon:direction_dial", "count": 1}
+}

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [" A ", "RMR", " P "],
+  "key": {
+    "A": "minecraft:amethyst_shard",
+    "R": "minecraft:redstone_torch",
+    "M": "minecraft:map",
+    "P": "minecraft:paper"
+  },
+  "result": {"id": "farlands_pearl_cannon:blueprint_projector", "count": 1}
+}

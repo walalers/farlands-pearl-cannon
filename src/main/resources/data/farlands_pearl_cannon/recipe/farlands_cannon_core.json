@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["OEO", "RLR", "OCO"],
+  "key": {
+    "O": "minecraft:obsidian",
+    "E": "minecraft:ender_eye",
+    "R": "minecraft:redstone",
+    "L": "minecraft:lodestone",
+    "C": "minecraft:copper_block"
+  },
+  "result": {"id": "farlands_pearl_cannon:farlands_cannon_core", "count": 1}
+}

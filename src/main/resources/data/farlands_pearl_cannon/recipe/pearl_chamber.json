@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["GCG", "PEP", "GRG"],
+  "key": {
+    "G": "minecraft:glass",
+    "C": "minecraft:copper_ingot",
+    "P": "minecraft:copper_block",
+    "E": "minecraft:ender_pearl",
+    "R": "minecraft:redstone"
+  },
+  "result": {"id": "farlands_pearl_cannon:pearl_chamber", "count": 1}
+}

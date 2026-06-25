@@ -1,0 +1,14 @@
+{
+  "block.farlands_pearl_cannon.farlands_cannon_core": "Farlands Cannon Core",
+  "block.farlands_pearl_cannon.pearl_chamber": "Pearl Chamber",
+  "block.farlands_pearl_cannon.direction_dial": "Direction Dial",
+  "item.farlands_pearl_cannon.blueprint_projector": "Cannon Blueprint Projector",
+  "item.farlands_pearl_cannon.anchor_pearl": "Anchor Pearl",
+  "itemGroup.farlands_pearl_cannon": "Farlands Pearl Cannon",
+  "advancements.farlands_pearl_cannon.root.title": "Farlands Pearl Cannon",
+  "advancements.farlands_pearl_cannon.root.description": "Build a cannon powerful enough to reach the edge of the world.",
+  "advancements.farlands_pearl_cannon.far_traveler.title": "Far Traveler",
+  "advancements.farlands_pearl_cannon.far_traveler.description": "Complete a Farlands Pearl Cannon structure.",
+  "advancements.farlands_pearl_cannon.how_did_i_get_here.title": "How did I get here...",
+  "advancements.farlands_pearl_cannon.how_did_i_get_here.description": "Use a Farlands Pearl Cannon to launch toward the Far Lands."
+}

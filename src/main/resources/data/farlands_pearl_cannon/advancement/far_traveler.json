@@ -1,0 +1,14 @@
+{
+  "parent": "farlands_pearl_cannon:root",
+  "display": {
+    "icon": {"id": "farlands_pearl_cannon:blueprint_projector"},
+    "title": {"translate": "advancements.farlands_pearl_cannon.far_traveler.title"},
+    "description": {"translate": "advancements.farlands_pearl_cannon.far_traveler.description"},
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "completed": {"trigger": "minecraft:impossible"}
+  }
+}

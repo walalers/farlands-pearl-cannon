@@ -1,38 +1,27 @@
 {
-	"schemaVersion": 1,
-	"id": "modid",
-	"version": "${version}",
-	"name": "Example Mod",
-	"description": "This is an example description! Tell everyone what your mod is about!",
-	"authors": [
-		"Me!"
-	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
-	"license": "CC0-1.0",
-	"icon": "assets/modid/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"com.example.ExampleMod"
-		],
-		"client": [
-			"com.example.client.ExampleModClient"
-		]
-	},
-	"mixins": [
-		"modid.mixins.json",
-		{
-			"config": "modid.client.mixins.json",
-			"environment": "client"
-		}
-	],
-	"depends": {
-		"fabricloader": ">=0.19.3",
-		"minecraft": "~26.2",
-		"java": ">=25",
-		"fabric-api": "*"
-	}
+  "schemaVersion": 1,
+  "id": "farlands_pearl_cannon",
+  "version": "${version}",
+  "name": "Farlands Pearl Cannon",
+  "description": "Build a redstone-powered ender pearl cannon and launch to the edge of the Far Lands. Optional companion mod for Farlands Reforged.",
+  "authors": ["Rennis", "Hermes Agent"],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/farlands-reforged"
+  },
+  "license": "MIT",
+  "icon": "assets/farlands_pearl_cannon/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.rennis.farlandspearlcannon.FarlandsPearlCannonMod"],
+    "client": ["com.rennis.farlandspearlcannon.client.FarlandsPearlCannonClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "~26.2",
+    "java": ">=25",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "farlands_reforged": "*"
+  }
 }

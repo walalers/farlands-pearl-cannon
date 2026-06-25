@@ -1,0 +1,14 @@
+{
+  "display": {
+    "icon": {"id": "farlands_pearl_cannon:farlands_cannon_core"},
+    "title": {"translate": "advancements.farlands_pearl_cannon.root.title"},
+    "description": {"translate": "advancements.farlands_pearl_cannon.root.description"},
+    "background": "minecraft:textures/block/obsidian.png",
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "has_core": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "farlands_pearl_cannon:farlands_cannon_core"}]}}
+  }
+}
