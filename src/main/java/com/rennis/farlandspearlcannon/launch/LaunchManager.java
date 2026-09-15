@@ -1,18 +1,21 @@
 package com.rennis.farlandspearlcannon.launch;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
-
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -27,9 +30,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.core.particles.ParticleTypes;
 
+import com.rennis.farlandspearlcannon.FarlandsPearlCannonMod;
 import com.rennis.farlandspearlcannon.advancement.ModAdvancements;
 import com.rennis.farlandspearlcannon.block.entity.FarlandsCannonCoreBlockEntity;
 import com.rennis.farlandspearlcannon.config.ModConfig;
@@ -39,9 +43,26 @@ public class LaunchManager {
     private static final List<PendingLaunch> PENDING = new ArrayList<>();
     private static final DustParticleOptions REDSTONE_SPARK = new DustParticleOptions(0xFF2A24, 1.0F);
     private static final int BARREL_LENGTH = 7;
+    /** Keep the landing this far inside a shrunken world border so the player never spawns in the wall. */
+    private static final int BORDER_MARGIN = 16;
+    /** A rider who gets farther than this from the core while it charges (walked off, respawned, teleported) is not fired. */
+    private static final double STAY_RANGE_SQ = 24.0 * 24.0;
 
     public static void initialize() {
         ServerTickEvents.END_SERVER_TICK.register(LaunchManager::tick);
+        ServerLifecycleEvents.SERVER_STOPPING.register(LaunchManager::onServerStopping);
+    }
+
+    /** Never carry a half-finished shot from one world into the next (singleplayer quit-to-title mid-charge). */
+    private static void onServerStopping(MinecraftServer server) {
+        for (PendingLaunch launch : PENDING) {
+            ServerLevel level = server.getLevel(launch.levelKey);
+            if (level != null) {
+                revertRedstone(level, launch.litBlocks);
+                refund(level, launch);
+            }
+        }
+        PENDING.clear();
     }
 
     public static void tryStartLaunch(Player player, Level level, BlockPos corePos, Direction facing, FarlandsCannonCoreBlockEntity cannon) {
@@ -51,22 +72,27 @@ public class LaunchManager {
         long readyAt = cannon.getLastFireGameTime() + ModConfig.cooldownTicks();
         if (now < readyAt) {
             long seconds = (readyAt - now + 19) / 20;
-            player.sendOverlayMessage(Component.literal("Cannon cooling down: " + seconds + "s"));
+            player.sendOverlayMessage(msg("launch.cooldown", seconds));
             serverLevel.playSound(null, corePos, SoundEvents.NOTE_BLOCK_BASS.value(), SoundSource.BLOCKS, 0.7F, 0.7F);
             return;
         }
         if (!cannon.isPearlLoaded()) {
-            player.sendOverlayMessage(Component.literal("Load an ender pearl first."));
+            player.sendOverlayMessage(msg("launch.no_pearl"));
             return;
         }
         if (cannon.getFuel() < ModConfig.values.fuelRequired) {
-            player.sendOverlayMessage(Component.literal("Fuel required: " + cannon.getFuel() + "/" + ModConfig.values.fuelRequired));
+            player.sendOverlayMessage(msg("launch.no_fuel", cannon.getFuel(), ModConfig.values.fuelRequired));
             return;
         }
         if (isLaunching(serverPlayer.getUUID())) return;
 
         FarlandsTarget target = cannon.getTarget();
         BlockPos targetXZ = target.targetFrom(player.blockPosition(), ModConfig.values.targetDistance);
+        BlockPos clamped = clampToWorldBorder(serverLevel, targetXZ);
+        if (!clamped.equals(targetXZ)) {
+            player.sendOverlayMessage(msg("launch.border_clamped").withStyle(ChatFormatting.YELLOW));
+            targetXZ = clamped;
+        }
         cannon.consumeForFire(ModConfig.values.consumePearlOnFire, ModConfig.values.consumeFuelOnFire, ModConfig.values.fuelRequired, now);
 
         int chargeTicks = Math.max(20, ModConfig.values.chargeTicks);
@@ -77,7 +103,20 @@ public class LaunchManager {
         serverLevel.playSound(null, corePos, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.65F);
         serverLevel.playSound(null, corePos, SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.BLOCKS, 1.0F, 0.85F);
         serverLevel.playSound(null, corePos, SoundEvents.TNT_PRIMED, SoundSource.BLOCKS, 1.0F, 0.7F);
-        player.sendOverlayMessage(Component.literal("Cannon firing — hold on!"));
+        player.sendOverlayMessage(msg("launch.firing"));
+    }
+
+    /** Pulls the target inside the world border (with a margin) so a shrunken border can never strand the rider in the wall. */
+    static BlockPos clampToWorldBorder(ServerLevel level, BlockPos target) {
+        WorldBorder border = level.getWorldBorder();
+        double minX = border.getMinX() + BORDER_MARGIN;
+        double maxX = border.getMaxX() - BORDER_MARGIN;
+        double minZ = border.getMinZ() + BORDER_MARGIN;
+        double maxZ = border.getMaxZ() - BORDER_MARGIN;
+        if (minX > maxX || minZ > maxZ) return target; // border too small to matter; let vanilla handle it
+        int x = (int) Math.max(minX, Math.min(maxX, target.getX()));
+        int z = (int) Math.max(minZ, Math.min(maxZ, target.getZ()));
+        return x == target.getX() && z == target.getZ() ? target : new BlockPos(x, target.getY(), z);
     }
 
     private static boolean isLaunching(UUID id) {
@@ -93,8 +132,23 @@ public class LaunchManager {
             PendingLaunch launch = iterator.next();
             ServerLevel level = server.getLevel(launch.levelKey);
             ServerPlayer player = server.getPlayerList().getPlayer(launch.playerId);
-            if (level == null || player == null) {
-                if (level != null) revertRedstone(level, launch.litBlocks);
+            if (level == null) {
+                iterator.remove();
+                continue;
+            }
+            // Rider logged out, died, or walked through a portal mid-charge: reload the cannon rather than eat the shot.
+            if (player == null || !player.isAlive() || player.level() != level) {
+                revertRedstone(level, launch.litBlocks);
+                refund(level, launch);
+                if (player != null) player.sendOverlayMessage(msg("launch.aborted").withStyle(ChatFormatting.YELLOW));
+                iterator.remove();
+                continue;
+            }
+
+            if (player.distanceToSqr(launch.corePos.getX() + 0.5, launch.corePos.getY() + 0.5, launch.corePos.getZ() + 0.5) > STAY_RANGE_SQ) {
+                revertRedstone(level, launch.litBlocks);
+                refund(level, launch);
+                player.sendOverlayMessage(msg("launch.walked_away").withStyle(ChatFormatting.YELLOW));
                 iterator.remove();
                 continue;
             }
@@ -105,6 +159,12 @@ public class LaunchManager {
                 completeLaunch(server, level, player, launch);
                 iterator.remove();
             }
+        }
+    }
+
+    private static void refund(ServerLevel level, PendingLaunch launch) {
+        if (level.getBlockEntity(launch.corePos) instanceof FarlandsCannonCoreBlockEntity cannon) {
+            cannon.refundShot(ModConfig.values.consumePearlOnFire, ModConfig.values.consumeFuelOnFire, ModConfig.values.fuelRequired);
         }
     }
 
@@ -119,9 +179,9 @@ public class LaunchManager {
         // Redstone energy crackles over every powered component.
         if (elapsed % 2 == 0) {
             for (CannonStructure.Requirement requirement : CannonStructure.requirements()) {
-                BlockState state = level.getBlockState(requirement.worldPos(core, facing));
+                BlockPos p = requirement.worldPos(core, facing);
+                BlockState state = level.getBlockState(p);
                 if (state.hasProperty(BlockStateProperties.POWER) || state.hasProperty(BlockStateProperties.POWERED)) {
-                    BlockPos p = requirement.worldPos(core, facing);
                     level.sendParticles(REDSTONE_SPARK, p.getX() + 0.5, p.getY() + 0.55, p.getZ() + 0.5, 1, 0.22, 0.22, 0.22, 0.0);
                 }
             }
@@ -175,9 +235,9 @@ public class LaunchManager {
         level.playSound(null, launch.corePos, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 1.0F, 0.8F);
 
         BlockPos safe = findSafeLanding(level, launch.targetXZ.getX(), launch.targetXZ.getZ());
-        level.getChunk(safe.getX() >> 4, safe.getZ() >> 4);
 
-        player.teleportTo(safe.getX() + 0.5, safe.getY(), safe.getZ() + 0.5);
+        player.teleportTo(level, safe.getX() + 0.5, safe.getY(), safe.getZ() + 0.5, Set.of(), player.getYRot(), player.getXRot(), false);
+        player.fallDistance = 0.0F;
         level.sendParticles(ParticleTypes.PORTAL, safe.getX() + 0.5, safe.getY() + 1.0, safe.getZ() + 0.5, 80, 0.8, 1.0, 0.8, 0.08);
         level.playSound(null, safe, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, 0.85F);
 
@@ -185,9 +245,9 @@ public class LaunchManager {
             ItemStack pearl = new ItemStack(ModItems.ANCHOR_PEARL);
             if (!player.getInventory().add(pearl)) player.drop(pearl, false); // never lose it to a full inventory
         }
-        player.sendSystemMessage(Component.literal("Stranded? Use your Anchor Pearl, or type /farlandscannon return to head home.")
-                .withStyle(ChatFormatting.LIGHT_PURPLE));
+        player.sendSystemMessage(msg("launch.stranded").withStyle(ChatFormatting.LIGHT_PURPLE));
         ModAdvancements.grant(server, player, "how_did_i_get_here");
+        FarlandsPearlCannonMod.LOGGER.info("{} launched to {} {} (heading {}).", player.getGameProfile().name(), safe.getX(), safe.getZ(), launch.targetXZ);
     }
 
     /** Temporarily lights every powered redstone component (client-visual only) so the build glows while firing. */
@@ -225,8 +285,8 @@ public class LaunchManager {
 
         if (ModConfig.values.createEmergencyLandingPlatform) {
             BlockPos feet = pos.below();
-            BlockState below = level.getBlockState(feet);
-            if (!below.isSolid()) {
+            // Nothing to stand on (air, water, leaves, a fence post...): lay a small stone pad first.
+            if (level.getBlockState(feet).getCollisionShape(level, feet).isEmpty()) {
                 for (int dx = -2; dx <= 2; dx++) {
                     for (int dz = -2; dz <= 2; dz++) {
                         level.setBlockAndUpdate(new BlockPos(x + dx, pos.getY() - 1, z + dz), Blocks.SMOOTH_STONE.defaultBlockState());
@@ -237,6 +297,10 @@ public class LaunchManager {
             level.setBlockAndUpdate(pos.above(), Blocks.AIR.defaultBlockState());
         }
         return pos;
+    }
+
+    private static net.minecraft.network.chat.MutableComponent msg(String key, Object... args) {
+        return Component.translatable("message.farlands_pearl_cannon." + key, args);
     }
 
     private static class PendingLaunch {
