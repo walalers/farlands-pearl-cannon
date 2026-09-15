@@ -246,6 +246,7 @@ public class LaunchManager {
             if (!player.getInventory().add(pearl)) player.drop(pearl, false, net.minecraft.util.Prediction.SERVER_ONLY); // never lose it to a full inventory
         }
         player.sendSystemMessage(msg("launch.stranded").withStyle(ChatFormatting.LIGHT_PURPLE));
+        FarlandsCompat.warnIfReforgedMissing(player, "landed");
         ModAdvancements.grant(server, player, "how_did_i_get_here");
         FarlandsPearlCannonMod.LOGGER.info("{} launched to {} {} (heading {}).", player.getGameProfile().name(), safe.getX(), safe.getZ(), launch.targetXZ);
     }
