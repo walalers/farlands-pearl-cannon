@@ -243,7 +243,7 @@ public class LaunchManager {
 
         if (ModConfig.values.giveAnchorPearlOnLaunch) {
             ItemStack pearl = new ItemStack(ModItems.ANCHOR_PEARL);
-            if (!player.getInventory().add(pearl)) player.drop(pearl, false); // never lose it to a full inventory
+            if (!player.getInventory().add(pearl)) player.drop(pearl, false, net.minecraft.util.Prediction.SERVER_ONLY); // never lose it to a full inventory
         }
         player.sendSystemMessage(msg("launch.stranded").withStyle(ChatFormatting.LIGHT_PURPLE));
         ModAdvancements.grant(server, player, "how_did_i_get_here");

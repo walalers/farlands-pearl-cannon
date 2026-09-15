@@ -4,7 +4,7 @@
     "has_ender_eye": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "minecraft:ender_eye"}]}},
     "has_lodestone": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "minecraft:lodestone"}]}},
     "has_projector": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "farlands_pearl_cannon:blueprint_projector"}]}},
-    "has_the_recipe": {"trigger": "minecraft:recipe_unlocked", "conditions": {"recipe": "farlands_pearl_cannon:farlands_cannon_core"}}
+    "has_the_recipe": {"trigger": "minecraft:recipe_unlocked", "conditions": {"recipes": "farlands_pearl_cannon:farlands_cannon_core"}}
   },
   "requirements": [["has_ender_eye", "has_lodestone", "has_projector", "has_the_recipe"]],
   "rewards": {"recipes": ["farlands_pearl_cannon:farlands_cannon_core"]}

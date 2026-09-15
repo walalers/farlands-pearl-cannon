@@ -4,7 +4,7 @@
     "has_map": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "minecraft:map"}]}},
     "has_amethyst_shard": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "minecraft:amethyst_shard"}]}},
     "has_ender_pearl": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "minecraft:ender_pearl"}]}},
-    "has_the_recipe": {"trigger": "minecraft:recipe_unlocked", "conditions": {"recipe": "farlands_pearl_cannon:blueprint_projector"}}
+    "has_the_recipe": {"trigger": "minecraft:recipe_unlocked", "conditions": {"recipes": "farlands_pearl_cannon:blueprint_projector"}}
   },
   "requirements": [["has_map", "has_amethyst_shard", "has_ender_pearl", "has_the_recipe"]],
   "rewards": {"recipes": ["farlands_pearl_cannon:blueprint_projector"]}

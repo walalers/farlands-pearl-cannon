@@ -4,7 +4,7 @@
     "has_ender_pearl": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "minecraft:ender_pearl"}]}},
     "has_projector": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "farlands_pearl_cannon:blueprint_projector"}]}},
     "has_core": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "farlands_pearl_cannon:farlands_cannon_core"}]}},
-    "has_the_recipe": {"trigger": "minecraft:recipe_unlocked", "conditions": {"recipe": "farlands_pearl_cannon:pearl_chamber"}}
+    "has_the_recipe": {"trigger": "minecraft:recipe_unlocked", "conditions": {"recipes": "farlands_pearl_cannon:pearl_chamber"}}
   },
   "requirements": [["has_ender_pearl", "has_projector", "has_core", "has_the_recipe"]],
   "rewards": {"recipes": ["farlands_pearl_cannon:pearl_chamber"]}

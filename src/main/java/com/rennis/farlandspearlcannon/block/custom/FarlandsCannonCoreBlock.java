@@ -2,7 +2,6 @@ package com.rennis.farlandspearlcannon.block.custom;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
-import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
@@ -53,11 +52,6 @@ public class FarlandsCannonCoreBlock extends BaseEntityBlock {
     public FarlandsCannonCoreBlock(Properties settings) {
         super(settings);
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(FarlandsCannonCoreBlock::new);
     }
 
     @Nullable
