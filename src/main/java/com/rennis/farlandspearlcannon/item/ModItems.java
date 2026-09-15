@@ -5,7 +5,9 @@ import java.util.function.Function;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -22,8 +24,14 @@ import com.rennis.farlandspearlcannon.item.custom.AnchorPearlItem;
 import com.rennis.farlandspearlcannon.item.custom.BlueprintProjectorItem;
 
 public class ModItems {
-    public static final Item BLUEPRINT_PROJECTOR = register("blueprint_projector", BlueprintProjectorItem::new, new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
-    public static final Item ANCHOR_PEARL = register("anchor_pearl", AnchorPearlItem::new, new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
+    public static final Item BLUEPRINT_PROJECTOR = register("blueprint_projector", BlueprintProjectorItem::new,
+            new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON)
+                    .component(DataComponents.LORE, Tooltips.lore("blueprint_projector",
+                            ChatFormatting.AQUA, ChatFormatting.GRAY, ChatFormatting.GRAY, ChatFormatting.GRAY, ChatFormatting.GRAY, ChatFormatting.DARK_GRAY)));
+    public static final Item ANCHOR_PEARL = register("anchor_pearl", AnchorPearlItem::new,
+            new Item.Properties().stacksTo(1).rarity(Rarity.RARE)
+                    .component(DataComponents.LORE, Tooltips.lore("anchor_pearl",
+                            ChatFormatting.LIGHT_PURPLE, ChatFormatting.GRAY, ChatFormatting.DARK_GRAY)));
 
     public static <T extends Item> T register(String name, Function<Item.Properties, T> itemFactory, Item.Properties settings) {
         ResourceKey<Item> itemKey = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(FarlandsPearlCannonMod.MOD_ID, name));
@@ -49,9 +57,6 @@ public class ModItems {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(tab -> {
             tab.accept(BLUEPRINT_PROJECTOR);
             tab.accept(ANCHOR_PEARL);
-        });
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(tab -> {
-            tab.accept(BLUEPRINT_PROJECTOR);
         });
     }
 }

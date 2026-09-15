@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "Farlands Pearl Cannon",
   "description": "Build a redstone-powered ender pearl cannon and launch to the edge of the Far Lands. Optional companion mod for Farlands Reforged.",
-  "authors": ["Shigeo", "Hermes Agent"],
+  "authors": ["Shigeo"],
   "contact": {
     "homepage": "https://www.curseforge.com/minecraft/mc-mods/farlands-reforged"
   },
@@ -15,6 +15,7 @@
     "main": ["com.rennis.farlandspearlcannon.FarlandsPearlCannonMod"],
     "client": ["com.rennis.farlandspearlcannon.client.FarlandsPearlCannonClient"]
   },
+  "mixins": ["farlands_pearl_cannon.mixins.json"],
   "depends": {
     "fabricloader": ">=0.19.3",
     "minecraft": "~26.2",

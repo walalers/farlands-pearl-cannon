@@ -20,6 +20,7 @@ public final class ModNetworking {
 
     public static void initialize() {
         PayloadTypeRegistry.clientboundPlay().register(OpenDialPayload.TYPE, OpenDialPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(PinBlueprintPayload.TYPE, PinBlueprintPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(SelectTargetPayload.TYPE, SelectTargetPayload.CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(SelectTargetPayload.TYPE, (payload, context) -> {
@@ -40,7 +41,7 @@ public final class ModNetworking {
         cannon.setTargetIndex(index);
 
         level.playSound(null, corePos, SoundEvents.COMPARATOR_CLICK, SoundSource.BLOCKS, 0.7F, 1.3F);
-        player.sendOverlayMessage(Component.literal("Launch direction set: " + all[index].displayName)
+        player.sendOverlayMessage(Component.translatable("message.farlands_pearl_cannon.direction.set", all[index].label())
                 .withStyle(ChatFormatting.AQUA));
     }
 }

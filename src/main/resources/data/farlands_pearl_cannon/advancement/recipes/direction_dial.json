@@ -1,0 +1,11 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_compass": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "minecraft:compass"}]}},
+    "has_projector": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "farlands_pearl_cannon:blueprint_projector"}]}},
+    "has_core": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "farlands_pearl_cannon:farlands_cannon_core"}]}},
+    "has_the_recipe": {"trigger": "minecraft:recipe_unlocked", "conditions": {"recipe": "farlands_pearl_cannon:direction_dial"}}
+  },
+  "requirements": [["has_compass", "has_projector", "has_core", "has_the_recipe"]],
+  "rewards": {"recipes": ["farlands_pearl_cannon:direction_dial"]}
+}

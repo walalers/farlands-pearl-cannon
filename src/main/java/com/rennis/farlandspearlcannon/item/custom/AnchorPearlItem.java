@@ -1,8 +1,6 @@
 package com.rennis.farlandspearlcannon.item.custom;
 
-import java.util.function.Consumer;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -14,8 +12,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.core.particles.ParticleTypes;
 
@@ -57,10 +53,4 @@ public class AnchorPearlItem extends Item {
         return InteractionResult.SUCCESS;
     }
 
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay displayComponent, Consumer<Component> textConsumer, TooltipFlag type) {
-        textConsumer.accept(Component.literal("Returns you to your last sleep spawn.").withStyle(ChatFormatting.LIGHT_PURPLE));
-        textConsumer.accept(Component.literal("If no bed is found, returns to world spawn.").withStyle(ChatFormatting.GRAY));
-        textConsumer.accept(Component.literal("Lost it? /farlandscannon return works from the Far Lands.").withStyle(ChatFormatting.DARK_GRAY));
-    }
 }

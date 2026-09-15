@@ -29,7 +29,7 @@ public class DirectionDialBlock extends Block {
             BlockPos corePos = CannonStructure.findCore(level, pos, 3);
             if (corePos == null || !(level.getBlockEntity(corePos) instanceof FarlandsCannonCoreBlockEntity cannon)) {
                 level.playSound(null, pos, SoundEvents.NOTE_BLOCK_BASS.value(), SoundSource.BLOCKS, 0.6F, 0.7F);
-                player.sendOverlayMessage(Component.literal("Mount the dial on a built cannon to aim it."));
+                player.sendOverlayMessage(Component.translatable("message.farlands_pearl_cannon.dial.no_cannon"));
                 return InteractionResult.SUCCESS;
             }
             level.playSound(null, pos, SoundEvents.COMPARATOR_CLICK, SoundSource.BLOCKS, 0.65F, 1.1F);
