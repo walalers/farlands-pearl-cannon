@@ -1,6 +1,8 @@
 package com.rennis.farlandspearlcannon.launch;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 public enum FarlandsTarget {
     NORTH("North", 0, -1),
@@ -20,6 +22,11 @@ public enum FarlandsTarget {
         this.displayName = displayName;
         this.xSign = xSign;
         this.zSign = zSign;
+    }
+
+    /** Translatable heading name for menus and messages. */
+    public MutableComponent label() {
+        return Component.translatable("direction.farlands_pearl_cannon." + name().toLowerCase(java.util.Locale.ROOT));
     }
 
     public BlockPos targetFrom(BlockPos current, int distance) {
