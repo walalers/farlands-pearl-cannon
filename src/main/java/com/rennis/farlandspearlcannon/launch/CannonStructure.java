@@ -57,6 +57,16 @@ public class CannonStructure {
             return facingRule != FacingRule.ANY;
         }
 
+        /** Plain-language placement hint for the HUD, or null when any rotation is accepted. */
+        public String hintKey() {
+            return switch (facingRule) {
+                case ANY -> null;
+                case TOWARD_CENTER -> "gui.farlands_pearl_cannon.hud.hint.toward_center";
+                case CORE_FACING -> "gui.farlands_pearl_cannon.hud.hint.core_facing";
+                case AWAY_FROM_MUZZLE -> "gui.farlands_pearl_cannon.hud.hint.away_from_muzzle";
+            };
+        }
+
         /** The facing this slot's block must point, or null if orientation does not matter. */
         public Direction expectedFacingOrNull(Direction coreFacing) {
             return facingRule == FacingRule.ANY ? null : expectedFacing(coreFacing);
@@ -68,7 +78,12 @@ public class CannonStructure {
     }
 
     /** One build step: a named group of slots the player completes before moving on. */
-    public record Stage(String name, List<Requirement> slots) {
+    public record Stage(String id, List<Requirement> slots) {
+        /** Translatable stage name (key stage.farlands_pearl_cannon.<id>). */
+        public net.minecraft.network.chat.MutableComponent label() {
+            return net.minecraft.network.chat.Component.translatable("stage.farlands_pearl_cannon." + id);
+        }
+
         public boolean isComplete(BlockGetter level, BlockPos core, Direction facing) {
             for (Requirement requirement : slots) {
                 if (!requirement.matches(level.getBlockState(requirement.worldPos(core, facing)), facing)) return false;
@@ -106,6 +121,9 @@ public class CannonStructure {
 
     /** One row of a shopping list: an icon item, how many are needed, and every item that satisfies the slot. */
     public record Material(Item icon, int required, List<Item> accepted) {}
+
+    /** Index of the deck stage: the only stage that can be built before the core exists (from a pinned blueprint). */
+    public static final int DECK_STAGE = 0;
 
     private static final List<Stage> STAGES = buildStages();
     private static final List<Requirement> REQUIREMENTS = flatten(STAGES);
@@ -223,10 +241,10 @@ public class CannonStructure {
                 deck.add(req(0, s, -1, f, "Iron deck plate", Blocks.IRON_BLOCK));
             }
         }
-        stages.add(new Stage("Foundation deck", deck));
+        stages.add(new Stage("foundation_deck", deck));
 
         // Stage 1 - breech: the pearl magazine sits behind the core with the dial mounted on top.
-        stages.add(new Stage("Breech & chamber", List.of(
+        stages.add(new Stage("breech_chamber", List.of(
                 req(1, 0, 0, -1, "Pearl Chamber", ModBlocks.PEARL_CHAMBER),
                 req(1, 0, 1, -1, "Direction Dial", ModBlocks.DIRECTION_DIAL))));
 
@@ -237,42 +255,43 @@ public class CannonStructure {
         barrel.add(req(2, -1, 0, 7, "Muzzle flare", Blocks.OBSIDIAN, Blocks.CRYING_OBSIDIAN));
         barrel.add(req(2, 0, 1, 7, "Muzzle flare", Blocks.OBSIDIAN, Blocks.CRYING_OBSIDIAN));
         barrel.add(req(2, 0, -1, 7, "Muzzle flare", Blocks.OBSIDIAN, Blocks.CRYING_OBSIDIAN));
-        stages.add(new Stage("Obsidian barrel", barrel));
+        stages.add(new Stage("obsidian_barrel", barrel));
 
         // Stage 3 - feed lane: dust carries power from the core out to the rails, with a dispenser and
         // ram piston flanking the breech on each side (symmetric).
-        stages.add(new Stage("Loaders & feed", List.of(
+        stages.add(new Stage("loaders_feed", List.of(
                 req(3, -1, 0, 0, "Redstone dust", Blocks.REDSTONE_WIRE),
                 req(3, 1, 0, 0, "Redstone dust", Blocks.REDSTONE_WIRE),
-                req(3, -1, 0, 1, "Dispenser facing chamber", FacingRule.TOWARD_CENTER, Blocks.DISPENSER),
-                req(3, 1, 0, 1, "Dispenser facing chamber", FacingRule.TOWARD_CENTER, Blocks.DISPENSER),
-                req(3, -1, 0, 2, "Ram Piston facing chamber", FacingRule.TOWARD_CENTER, Blocks.PISTON, Blocks.STICKY_PISTON),
-                req(3, 1, 0, 2, "Ram Piston facing chamber", FacingRule.TOWARD_CENTER, Blocks.PISTON, Blocks.STICKY_PISTON))));
+                req(3, -1, 0, 1, "Dispenser (facing the barrel)", FacingRule.TOWARD_CENTER, Blocks.DISPENSER),
+                req(3, 1, 0, 1, "Dispenser (facing the barrel)", FacingRule.TOWARD_CENTER, Blocks.DISPENSER),
+                req(3, -1, 0, 2, "Piston (facing the barrel)", FacingRule.TOWARD_CENTER, Blocks.PISTON, Blocks.STICKY_PISTON),
+                req(3, 1, 0, 2, "Piston (facing the barrel)", FacingRule.TOWARD_CENTER, Blocks.PISTON, Blocks.STICKY_PISTON))));
 
-        // Stage 4 - left control circuit, wired core -> dust -> repeater -> dust -> comparator -> observer.
-        stages.add(new Stage("Left circuit", List.of(
+        // Stage 4 - left control circuit: core -> dust -> repeater -> dust -> comparator -> observer. The circuit is
+        // decorative (the lever fires the core), so these accept any rotation; only the pistons/dispensers are oriented.
+        stages.add(new Stage("left_circuit", List.of(
                 req(4, -2, 0, 0, "Redstone dust", Blocks.REDSTONE_WIRE),
-                req(4, -2, 0, 1, "Repeater facing muzzle", FacingRule.CORE_FACING, Blocks.REPEATER),
+                req(4, -2, 0, 1, "Repeater", Blocks.REPEATER),
                 req(4, -2, 0, 2, "Redstone dust", Blocks.REDSTONE_WIRE),
-                req(4, -2, 0, 3, "Comparator facing muzzle", FacingRule.CORE_FACING, Blocks.COMPARATOR),
-                req(4, -2, 0, 4, "Observer watching circuit", FacingRule.AWAY_FROM_MUZZLE, Blocks.OBSERVER))));
+                req(4, -2, 0, 3, "Comparator", Blocks.COMPARATOR),
+                req(4, -2, 0, 4, "Observer", Blocks.OBSERVER))));
 
         // Stage 5 - right control circuit (exact mirror of the left).
-        stages.add(new Stage("Right circuit", List.of(
+        stages.add(new Stage("right_circuit", List.of(
                 req(5, 2, 0, 0, "Redstone dust", Blocks.REDSTONE_WIRE),
-                req(5, 2, 0, 1, "Repeater facing muzzle", FacingRule.CORE_FACING, Blocks.REPEATER),
+                req(5, 2, 0, 1, "Repeater", Blocks.REPEATER),
                 req(5, 2, 0, 2, "Redstone dust", Blocks.REDSTONE_WIRE),
-                req(5, 2, 0, 3, "Comparator facing muzzle", FacingRule.CORE_FACING, Blocks.COMPARATOR),
-                req(5, 2, 0, 4, "Observer watching circuit", FacingRule.AWAY_FROM_MUZZLE, Blocks.OBSERVER))));
+                req(5, 2, 0, 3, "Comparator", Blocks.COMPARATOR),
+                req(5, 2, 0, 4, "Observer", Blocks.OBSERVER))));
 
         // Stage 6 - sights mounted on top of the barrel, on the centre line.
-        stages.add(new Stage("Sights & tuning", List.of(
+        stages.add(new Stage("sights_tuning", List.of(
                 req(6, 0, 1, 3, "Amethyst tuner", Blocks.AMETHYST_BLOCK),
                 req(6, 0, 1, 5, "End rod sight", Blocks.END_ROD))));
 
         // Stage 7 - the ignition: a lever right on top of the core wires power straight into it.
         // Flip it on (or feed any redstone to the core) and the cannon fires.
-        stages.add(new Stage("Ignition lever", List.of(
+        stages.add(new Stage("ignition_lever", List.of(
                 req(7, 0, 1, 0, "Ignition Lever (on top of core)", Blocks.LEVER))));
 
         return List.copyOf(stages);

@@ -2,6 +2,7 @@ package com.rennis.farlandspearlcannon.command;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,21 +16,25 @@ public class ModCommands {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
                 Commands.literal("farlandscannon")
                         .then(Commands.literal("return")
-                                .requires(source -> ModConfig.values.enableReturnCommand)
+                                .requires(ModCommands::canReturn)
                                 .executes(context -> {
                                     if (context.getSource().getPlayer() instanceof ServerPlayer player) {
                                         int min = ModConfig.values.returnCommandMinDistance;
                                         if (Math.abs(player.getX()) < min && Math.abs(player.getZ()) < min) {
-                                            context.getSource().sendFailure(Component.literal(
-                                                    "The return beacon only reaches across the Far Lands — you're too close to home to use it."));
+                                            context.getSource().sendFailure(Component.translatable("message.farlands_pearl_cannon.return.too_close"));
                                             return 0;
                                         }
                                         AnchorPearlItem.teleportHome(player, InteractionHand.MAIN_HAND, false);
-                                        context.getSource().sendSuccess(() -> Component.literal("The Far Lands release you — returning home."), false);
+                                        context.getSource().sendSuccess(() -> Component.translatable("message.farlands_pearl_cannon.return.success"), false);
                                         return 1;
                                     }
                                     return 0;
                                 }))
         ));
+    }
+
+    private static boolean canReturn(CommandSourceStack source) {
+        if (!ModConfig.values.enableReturnCommand) return false;
+        return !ModConfig.values.returnCommandRequiresPermission || Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source);
     }
 }
