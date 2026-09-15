@@ -181,5 +181,7 @@ public class BlueprintProjectionManager {
         level.playSound(null, core, SoundEvents.PLAYER_LEVELUP, SoundSource.BLOCKS, 0.8F, 1.2F);
         level.playSound(null, core, SoundEvents.BEACON_POWER_SELECT, SoundSource.BLOCKS, 0.7F, 1.0F);
         player.sendOverlayMessage(Component.translatable("message.farlands_pearl_cannon.build.complete", ModConfig.values.fuelRequired).withStyle(ChatFormatting.GREEN));
+        // Warn before the pearl and fuel are spent, not only after landing.
+        FarlandsCompat.warnIfReforgedMissing(player, "built");
     }
 }
