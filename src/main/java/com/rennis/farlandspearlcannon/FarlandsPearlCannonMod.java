@@ -13,6 +13,7 @@ import com.rennis.farlandspearlcannon.command.ModCommands;
 import com.rennis.farlandspearlcannon.config.ModConfig;
 import com.rennis.farlandspearlcannon.item.ModItems;
 import com.rennis.farlandspearlcannon.launch.BlueprintProjectionManager;
+import com.rennis.farlandspearlcannon.launch.FarlandsCompat;
 import com.rennis.farlandspearlcannon.launch.LaunchManager;
 import com.rennis.farlandspearlcannon.network.ModNetworking;
 
@@ -30,6 +31,7 @@ public class FarlandsPearlCannonMod implements ModInitializer {
         ModCommands.initialize();
         LaunchManager.initialize();
         BlueprintProjectionManager.initialize();
+        FarlandsCompat.initialize();
         LOGGER.info("Farlands Pearl Cannon loaded.");
     }
 
